@@ -31,6 +31,36 @@ declare global {
   }
 }
 
+const extractText = (content: any): string => {
+  if (!content) return "";
+  if (typeof content === "string") return content;
+  
+  if (Array.isArray(content)) {
+    return content
+      .map((item) => {
+        if (typeof item === "string") return item;
+        if (item && typeof item === "object" && typeof item.text === "string") {
+          return item.text;
+        }
+        return JSON.stringify(item);
+      })
+      .join("\n");
+  }
+  
+  if (typeof content === "object") {
+    if (typeof content.text === "string") return content.text;
+    if (typeof content.message?.content !== "undefined") {
+      return extractText(content.message.content);
+    }
+    if (typeof content.content !== "undefined") {
+      return extractText(content.content);
+    }
+    return JSON.stringify(content);
+  }
+  
+  return String(content);
+};
+
 export default function Dashboard({ onBack }: DashboardProps) {
   const backendURL = import.meta.env.VITE_BACKEND_URL || "";
 
@@ -45,6 +75,7 @@ export default function Dashboard({ onBack }: DashboardProps) {
   const [output, setOutput] = useState("");
   const [loading, setLoading] = useState(false);
   const [uploadDragOver, setUploadDragOver] = useState(false);
+  const [selectedModel, setSelectedModel] = useState("gpt-4o-mini");
 
   // const handleUpload = async () => {
   //   try {
@@ -209,16 +240,15 @@ export default function Dashboard({ onBack }: DashboardProps) {
 
         try {
           console.log("🤖 Sending to AI...");
-          const aiResponse = await window.puter.ai.chat(prompt);
+          const aiResponse = await window.puter.ai.chat(prompt, { model: selectedModel });
 
           console.log("🤖 AI raw response:", aiResponse);
 
-          const cleaned =
+          const cleaned = extractText(
             aiResponse?.message?.content ||
             aiResponse?.content ||
-            (typeof aiResponse === "string"
-              ? aiResponse
-              : JSON.stringify(aiResponse, null, 2));
+            aiResponse
+          );
 
           console.log("✨ Cleaned Resume:", cleaned);
 
@@ -245,8 +275,12 @@ export default function Dashboard({ onBack }: DashboardProps) {
     setIsJdRefining(true);
     try {
       const prompt = `Extract only the core Job Description, Responsibilities, and Qualifications from the following text.\nRemove all website navigation links, company footers, headers, privacy policies, unrelated jobs, and filler text.\nReturn ONLY the pristine job description text.\n\nRAW TEXT:\n${jd}`;
-      const aiResponse = await window.puter.ai.chat(prompt);
-      const cleaned = aiResponse?.message?.content || aiResponse?.content || (typeof aiResponse === "string" ? aiResponse : JSON.stringify(aiResponse, null, 2));
+      const aiResponse = await window.puter.ai.chat(prompt, { model: selectedModel });
+      const cleaned = extractText(
+        aiResponse?.message?.content ||
+        aiResponse?.content ||
+        aiResponse
+      );
       setJd(cleaned.trim());
     } catch (err) {
       console.error("JD Refine Error:", err);
@@ -260,8 +294,12 @@ export default function Dashboard({ onBack }: DashboardProps) {
     setIsResumeRefining(true);
     try {
       const prompt = `Please fix any messy formatting, line-break artifacts, or PDF extraction errors from the following Resume text.\nExtract ONLY the actual resume content (Contact Info, Experience, Education, Skills, Projects).\nDo not summarize it. Do not remove any valid skills or experience. Return ONLY the clean, structured text.\n\nRAW RESUME TEXT:\n${resume}`;
-      const aiResponse = await window.puter.ai.chat(prompt);
-      const cleaned = aiResponse?.message?.content || aiResponse?.content || (typeof aiResponse === "string" ? aiResponse : JSON.stringify(aiResponse, null, 2));
+      const aiResponse = await window.puter.ai.chat(prompt, { model: selectedModel });
+      const cleaned = extractText(
+        aiResponse?.message?.content ||
+        aiResponse?.content ||
+        aiResponse
+      );
       setResume(cleaned.trim());
     } catch (err) {
       console.error("Resume Refine Error:", err);
@@ -335,14 +373,15 @@ ${jd}
 
       console.log("🤖 Sending request to Puter AI...");
 
-      const response = await window.puter.ai.chat(prompt);
+      const response = await window.puter.ai.chat(prompt, { model: selectedModel });
 
       console.log("📦 Raw Response:", response);
 
-      const text =
+      const text = extractText(
         response?.message?.content ||
         response?.content ||
-        (typeof response === "string" ? response : JSON.stringify(response, null, 2));
+        response
+      );
 
       console.log("✅ Parsed Output:", text);
 
@@ -390,6 +429,23 @@ ${jd}
           </motion.button>
 
           <div className="flex items-center gap-3">
+            {/* Model Selector */}
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full glass text-xs">
+              <Brain className="w-3.5 h-3.5 text-primary" />
+              <select
+                value={selectedModel}
+                onChange={(e) => setSelectedModel(e.target.value)}
+                className="bg-transparent border-none text-foreground font-semibold cursor-pointer outline-none focus:ring-0 text-[11px] pr-2"
+                style={{ colorScheme: "dark" }}
+              >
+                <option value="gpt-4o-mini" className="bg-background text-foreground">GPT-4o Mini (OpenAI)</option>
+                <option value="gpt-3.5-turbo" className="bg-background text-foreground">GPT-3.5 Turbo (OpenAI)</option>
+                <option value="meta-llama-3.1-8b-instruct" className="bg-background text-foreground">Llama 3.1 8B (Meta)</option>
+                <option value="gemma-2-27b" className="bg-background text-foreground">Gemma 2 27B (Google)</option>
+                <option value="claude-3-5-sonnet" className="bg-background text-foreground">Claude 3.5 (Anthropic)</option>
+              </select>
+            </div>
+
             {/* Status indicator */}
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full glass text-xs">
               <div className={`w-1.5 h-1.5 rounded-full ${readyState === "ready" ? "bg-emerald-glow animate-pulse" : "bg-amber-glow"}`} />
