@@ -421,11 +421,11 @@ ${jd}
             whileHover={{ x: -2 }}
             className="flex items-center gap-3 group"
           >
-            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center overflow-hidden border border-white/20">
+            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center overflow-hidden border border-slate-200">
               <img src="/log.png" alt="ScanHire AI Logo" className="w-full h-full object-contain" />
             </div>
             <span className="font-bold text-foreground tracking-tight font-display text-lg">ScanHire AI</span>
-            <ArrowLeft className="w-3.5 h-3.5 text-muted-foreground/40 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <ArrowLeft className="w-3.5 h-3.5 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
           </motion.button>
 
           <div className="flex items-center gap-3">
@@ -449,7 +449,7 @@ ${jd}
             {/* Status indicator */}
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full glass text-xs">
               <div className={`w-1.5 h-1.5 rounded-full ${readyState === "ready" ? "bg-emerald-glow animate-pulse" : "bg-amber-glow"}`} />
-              <span className="text-muted-foreground">
+              <span className="text-slate-500">
                 {readyState === "ready" ? "Ready to analyze" : readyState === "need-jd" ? "Add job description" : "Upload resume first"}
               </span>
             </div>
@@ -495,7 +495,7 @@ ${jd}
                 </motion.div>
                 <div>
                   <h2 className="font-bold text-foreground text-base font-display">Resume</h2>
-                  <p className="text-xs text-muted-foreground">Upload PDF or paste text</p>
+                  <p className="text-xs text-slate-500">Upload PDF or paste text</p>
                 </div>
               </div>
               <div className="flex bg-secondary/20 p-1 rounded-xl border border-border/40">
@@ -534,16 +534,16 @@ ${jd}
                     animate={uploadDragOver ? { scale: 1.2, y: -5 } : { scale: 1, y: 0 }}
                     transition={{ type: "spring" }}
                   >
-                    <UploadCloud className={`w-8 h-8 mb-3 transition-colors ${uploadDragOver ? "text-primary" : "text-muted-foreground/50 group-hover:text-primary/70"}`} />
+                    <UploadCloud className={`w-8 h-8 mb-3 transition-colors ${uploadDragOver ? "text-primary" : "text-slate-500 group-hover:text-primary/70"}`} />
                   </motion.div>
-                  <p className="text-sm font-medium text-secondary-foreground">
+                  <p className="text-sm font-medium text-slate-600">
                     {file ? (
                       <span className="text-primary">{file.name}</span>
                     ) : (
                       "Click or drag your PDF here"
                     )}
                   </p>
-                  <p className="text-[11px] text-muted-foreground/50 mt-1.5">Max 5 MB · PDF only</p>
+                  <p className="text-[11px] text-slate-500 mt-1.5">Max 5 MB · PDF only</p>
                   <input type="file" accept=".pdf" className="hidden" onChange={(e) => setFile(e.target.files?.[0] || null)} />
                 </label>
 
@@ -573,7 +573,7 @@ ${jd}
                   placeholder="Paste your resume text here..."
                   value={resume}
                   onChange={(e) => setResume(e.target.value)}
-                  className="w-full min-h-[140px] p-4 bg-secondary/10 border border-border/20 rounded-2xl text-sm text-secondary-foreground placeholder-muted-foreground/30 resize-none focus:outline-none focus:border-primary/30 focus:bg-primary/5 transition-all font-sans"
+                  className="w-full min-h-[140px] p-4 bg-secondary/10 border border-border/20 rounded-2xl text-sm text-slate-600 placeholder:text-slate-400 resize-none focus:outline-none focus:border-primary/30 focus:bg-primary/5 transition-all font-sans"
                 />
                 <motion.button
                   whileHover={{ scale: 1.01 }}
@@ -635,7 +635,7 @@ ${jd}
                 </motion.div>
                 <div>
                   <h2 className="font-bold text-foreground text-base font-display">Job Description</h2>
-                  <p className="text-xs text-muted-foreground">Paste or auto-scrape from a URL</p>
+                  <p className="text-xs text-slate-500">Paste or auto-scrape from a URL</p>
                 </div>
               </div>
               {jd && (
@@ -653,7 +653,7 @@ ${jd}
               placeholder="Paste the full job description here..."
               value={jd}
               onChange={(e) => setJd(e.target.value)}
-              className="flex-1 min-h-[180px] w-full p-4 bg-secondary/10 border border-border/20 rounded-2xl text-sm text-secondary-foreground placeholder-muted-foreground/30 resize-none focus:outline-none focus:border-primary/30 focus:bg-primary/5 transition-all font-sans"
+              className="flex-1 min-h-[180px] w-full p-4 bg-secondary/10 border border-border/20 rounded-2xl text-sm text-slate-600 placeholder:text-slate-400 resize-none focus:outline-none focus:border-primary/30 focus:bg-primary/5 transition-all font-sans"
             />
 
             <motion.button
@@ -707,7 +707,7 @@ ${jd}
                 whileTap={{ scale: 0.98 }}
                 className={`relative flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-medium transition-all ${activeTab === tab.id
                   ? "text-foreground"
-                  : "text-muted-foreground hover:text-secondary-foreground"
+                  : "text-slate-500 hover:text-slate-600"
                   }`}
               >
                 {activeTab === tab.id && (
@@ -744,7 +744,7 @@ ${jd}
                         animate={{ y: [0, -10, 0], rotate: [0, 3, -3, 0] }}
                         transition={{ duration: 5, repeat: Infinity }}
                       >
-                        <FileSearch className="w-9 h-9 text-muted-foreground/60" />
+                        <FileSearch className="w-9 h-9 text-slate-500" />
                       </motion.div>
                       {/* Orbiting dots */}
                       {[0, 1, 2].map((i) => (
@@ -766,7 +766,7 @@ ${jd}
                       ))}
                     </div>
                     <h3 className="text-xl font-bold text-foreground mb-3 font-display">Ready to Analyze</h3>
-                    <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
+                    <p className="text-sm text-slate-600 max-w-sm leading-relaxed">
                       Upload your resume and add a job description, then click{" "}
                       <span className="text-primary font-semibold">"Analyze Now"</span> to get your detailed ATS compatibility report.
                     </p>
@@ -811,7 +811,7 @@ ${jd}
                       </div>
                     </div>
                     <p className="text-lg font-semibold text-foreground mb-2 font-display">Analyzing your profile...</p>
-                    <p className="text-xs text-muted-foreground mb-6">Running advanced ATS algorithms</p>
+                    <p className="text-xs text-slate-500 mb-6">Running advanced ATS algorithms</p>
                     <div className="w-56 h-1.5 rounded-full overflow-hidden bg-secondary/30">
                       <motion.div
                         className="h-full rounded-full bg-gradient-to-r from-primary to-accent"
@@ -828,7 +828,7 @@ ${jd}
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: i * 2.5 }}
-                          className="text-[11px] text-muted-foreground/50 flex items-center gap-2"
+                          className="text-[11px] text-slate-500 flex items-center gap-2"
                         >
                           <motion.div
                             className="w-1 h-1 rounded-full bg-primary"
@@ -846,7 +846,7 @@ ${jd}
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="whitespace-pre-wrap text-[14px] leading-7 text-secondary-foreground pb-10"
+                    className="whitespace-pre-wrap text-[14px] leading-7 text-slate-600 pb-10"
                   >
                     {output}
                   </motion.div>
@@ -864,7 +864,7 @@ ${jd}
                   value={resume}
                   onChange={(e) => setResume(e.target.value)}
                   placeholder="Your refined resume text will appear here after upload. You can also paste it manually."
-                  className="w-full h-full min-h-[450px] bg-transparent text-[13px] leading-relaxed text-muted-foreground placeholder-muted-foreground/30 resize-none focus:outline-none"
+                  className="w-full h-full min-h-[450px] bg-transparent text-[13px] leading-relaxed text-slate-600 placeholder:text-slate-400 resize-none focus:outline-none"
                   style={{ fontFamily: "'JetBrains Mono', monospace" }}
                 />
               </motion.div>
