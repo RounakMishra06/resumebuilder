@@ -1,21 +1,22 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv"
+import dotenv from "dotenv";
 import parseRoutes from "./routes/parseRoutes.js";
+import jobRoutes from "./routes/jobRoutes.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors())
-
+app.use(cors());
 app.use(express.json());
 
 app.use("/api", parseRoutes);
+app.use("/api", jobRoutes);
 
 app.get("/", (req, res) => {
-    res.send("Server is running...");
+  res.send("Server is running...");
 });
 
 app.listen(PORT, () => {

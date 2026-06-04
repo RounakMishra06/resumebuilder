@@ -16,9 +16,13 @@ import {
   Wand2,
   Brain,
 } from "lucide-react";
+import type { JobRecommendation, CandidateProfile } from "@/lib/jobService";
+import { getJobRecommendations, inferProfileFromResume } from "@/lib/jobService";
+import JobRecommendations from "@/components/JobRecommendations";
 
 interface DashboardProps {
   onBack: () => void;
+  initialTab?: string;
 }
 
 declare global {
@@ -61,10 +65,10 @@ const extractText = (content: any): string => {
   return String(content);
 };
 
-export default function Dashboard({ onBack }: DashboardProps) {
+export default function Dashboard({ onBack, initialTab }: DashboardProps) {
   const backendURL = import.meta.env.VITE_BACKEND_URL || "";
 
-  const [activeTab, setActiveTab] = useState("analysis");
+  const [activeTab, setActiveTab] = useState(initialTab || "analysis");
   const [file, setFile] = useState<File | null>(null);
   const [url, setUrl] = useState("");
   const [resume, setResume] = useState("");
@@ -74,6 +78,9 @@ export default function Dashboard({ onBack }: DashboardProps) {
   const [isJdRefining, setIsJdRefining] = useState(false);
   const [output, setOutput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [jobs, setJobs] = useState<JobRecommendation[]>([]);
+  const [jobsLoading, setJobsLoading] = useState(false);
+  const [jobsError, setJobsError] = useState("");
   const [uploadDragOver, setUploadDragOver] = useState(false);
   const [selectedModel, setSelectedModel] = useState("gpt-4o-mini");
 
@@ -270,6 +277,40 @@ export default function Dashboard({ onBack }: DashboardProps) {
       setLoading(false);
     }
   };
+
+  const loadJobRecommendations = async (resumeText: string) => {
+    if (!resumeText.trim()) {
+      setJobs([]);
+      setJobsError("Add your resume to enable job recommendations.");
+      return;
+    }
+
+    setJobsLoading(true);
+    setJobsError("");
+
+    try {
+      const profile = await inferProfileFromResume(resumeText, selectedModel);
+      const query = profile.roles?.[0] || profile.keywords?.[0] || profile.skills?.[0] || "";
+      const recommendations = await getJobRecommendations(backendURL, profile, query);
+      setJobs(recommendations);
+
+      if (!recommendations.length) {
+        setJobsError("No matching jobs were found. Try refining your resume or job description.");
+      }
+    } catch (err: any) {
+      console.error("Job recommendations error:", err);
+      setJobs([]);
+      setJobsError(err?.message || "Unable to load job recommendations.");
+    } finally {
+      setJobsLoading(false);
+    }
+  };
+
+  const refreshJobRecommendations = async () => {
+    await loadJobRecommendations(resume);
+    setActiveTab("jobs");
+  };
+
   const handleRefineJD = async () => {
     if (!jd.trim()) return;
     setIsJdRefining(true);
@@ -324,7 +365,7 @@ export default function Dashboard({ onBack }: DashboardProps) {
     try {
       setLoading(true);
       setActiveTab("analysis");
-      setOutput("⏳ Analyzing...");
+      setOutput("");
 
       console.log("📄 Resume length:", resume.length);
       console.log("📄 JD length:", jd.length);
@@ -386,9 +427,12 @@ ${jd}
       console.log("✅ Parsed Output:", text);
 
       setOutput(text || "⚠️ No response from AI");
+      await loadJobRecommendations(resume);
     } catch (err: any) {
       console.error("❌ Analyze error:", err);
       setOutput("❌ Error: " + (err?.message || "Something went wrong"));
+      setJobs([]);
+      setJobsError("Unable to generate job recommendations after analysis.");
     } finally {
       setLoading(false);
       console.log("🏁 Analysis completed");
@@ -397,6 +441,7 @@ ${jd}
   const tabs = [
     { id: "analysis", icon: <Sparkles className="w-3.5 h-3.5" />, label: "AI Analysis" },
     { id: "resume", icon: <FileCheck2 className="w-3.5 h-3.5" />, label: "Extracted Resume" },
+    { id: "jobs", icon: <Briefcase className="w-3.5 h-3.5" />, label: "Job Recommendations" },
   ];
 
   const readyState = resume ? (jd ? "ready" : "need-jd") : "need-resume";
@@ -771,7 +816,7 @@ ${jd}
                       <span className="text-primary font-semibold">"Analyze Now"</span> to get your detailed ATS compatibility report.
                     </p>
                   </motion.div>
-                ) : loading && output === "Analyzing..." ? (
+                ) : loading ? (
                   <motion.div
                     key="loading"
                     initial={{ opacity: 0 }}
@@ -852,6 +897,15 @@ ${jd}
                   </motion.div>
                 )}
               </AnimatePresence>
+            )}
+
+            {activeTab === "jobs" && (
+              <JobRecommendations
+                jobs={jobs}
+                loading={jobsLoading}
+                error={jobsError}
+                onRefresh={refreshJobRecommendations}
+              />
             )}
 
             {activeTab === "resume" && (

@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import {
   ArrowRight,
   BarChart3,
@@ -84,6 +85,7 @@ export default function LandingPage({ onStart }: LandingPageProps) {
           <a className="transition-colors hover:text-foreground" href="#features">Features</a>
           <a className="transition-colors hover:text-foreground" href="#how-it-works">How it works</a>
           <a className="transition-colors hover:text-foreground" href="#stats">Results</a>
+          <Link className="transition-colors hover:text-foreground" to="/recommendations">Job recommendations</Link>
         </div>
         <Button onClick={onStart} size="sm" className="hidden md:inline-flex">
           Start free analysis
