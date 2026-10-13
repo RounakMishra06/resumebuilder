@@ -5,7 +5,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
 **ScanHire AI** is a state-of-the-art, AI-powered Applicant Tracking System (ATS) optimization tool. It helps job seekers "beat the algorithm" by analyzing their resumes against specific job descriptions, providing a realistic ATS score, identifying keyword gaps, and offering actionable insights to improve their application success rate.
-
+ 
 ---   
    
 ## ✨ Core Features
